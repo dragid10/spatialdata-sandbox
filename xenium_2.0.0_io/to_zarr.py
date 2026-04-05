@@ -23,7 +23,7 @@ DATA_WRITE_PATH = ROOT_PROJECT_PATH / "data.zarr"
 # Use argparse to allow runing script as cli tool
 parser = argparse.ArgumentParser(description="Convert data to zarr format")
 parser.add_argument(
-    "-d"
+    "-d",
     "--data",
     type=str,
     default=str(DATA_READ_PATH),
@@ -41,9 +41,9 @@ args = parser.parse_args()
 #     assert path.exists()
 
 ## Parse the data
-print(f"parsing the data file: {DATA_READ_PATH} ... ", end="")
+print(f"parsing the data file: {args.data} ... ", end="")
 sdata = xenium(
-    path=str(DATA_READ_PATH),
+    path=args.data,
     n_jobs=8,
     cell_boundaries=True,
     nucleus_boundaries=True,
@@ -54,14 +54,15 @@ sdata = xenium(
 print("Data file successfully parsed")
 
 ## Write transformed data to zarr
-print(f"writing the data to: {str(DATA_WRITE_PATH)} ... ", end="")
-if DATA_WRITE_PATH.exists():
-    shutil.rmtree(DATA_WRITE_PATH)
-sdata.write(DATA_WRITE_PATH)
-print(f"Successfully wrote the data to: {str(DATA_WRITE_PATH)}")
+output_path = Path(args.output)
+print(f"writing the data to: {output_path} ... ", end="")
+if output_path.exists():
+    shutil.rmtree(output_path)
+sdata.write(output_path)
+print(f"Successfully wrote the data to: {output_path}")
 
 ##
-sdata = sd.SpatialData.read(f"{str(DATA_WRITE_PATH)}/")
+sdata = sd.SpatialData.read(f"{output_path}/")
 print(sdata)
 print(sdata['transcripts']['feature_name'].compute())
 ##
